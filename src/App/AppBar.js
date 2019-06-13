@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { compose } from 'recompose';
 
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -6,11 +8,10 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
+import Button from '@material-ui/core/Button';
 
 import ButtonLink from 'components/ButtonLink';
-import SessionContext from 'components/SessionContext';
-import withFirebase from 'hooks/withFirebase';
-import Button from '@material-ui/core/Button';
+import withFirebase from 'hocs/withFirebase';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -26,31 +27,31 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function ButtonAppBar({ firebase }) {
+const mapStateToProps = ({ userState: { authUser } }) => ({ authUser });
+
+function ButtonAppBar({ firebase, authUser }) {
   const classes = useStyles();
 
   return (
-    <SessionContext.Consumer>
-      {authUser => {
-        console.log(JSON.stringify(authUser, null, 2))
-        return (
-        <div className={classes.root}>
-          <AppBar position="static">
-            <Toolbar>
-              <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="Menu">
-                <MenuIcon />
-              </IconButton>
-              <Typography variant="h6" className={classes.title}>
-                Daily Genie
-              </Typography>
-                {authUser && (
-                  <Button color="inherit" onClick={firebase.onSignOut}>Sign Out</Button>
-                )}
-            </Toolbar>
-          </AppBar>
-        </div>
-      )}}
-    </SessionContext.Consumer>
+    <div className={classes.root}>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="Menu">
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" className={classes.title}>
+            Daily Genie
+          </Typography>
+            {authUser && (
+              <Button color="inherit" onClick={firebase.onSignOut}>Sign Out</Button>
+            )}
+        </Toolbar>
+      </AppBar>
+    </div>
   );
 }
-export default withFirebase(ButtonAppBar)
+
+export default compose(
+  withFirebase,
+  connect(mapStateToProps),
+)(ButtonAppBar)

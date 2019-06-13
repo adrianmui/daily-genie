@@ -1,32 +1,30 @@
 import React from 'react'
 import { Redirect } from 'react-router-dom';
-import SessionContext from 'components/SessionContext';
+import { connect } from 'react-redux';
 
-function Landing() {
+const mapStateToProps = ({ userState: { authUser } }) => ({ authUser });
+
+function Landing({ authUser }) {
+  if (!authUser) {
+    return <Redirect to='/login' />
+  }
   return (
-    <SessionContext.Consumer>
-      {authUser => authUser ? (
-        <div className="App">
-          <header className="App-header">
-            <p>
-              Welcome {authUser.displayName}
-            </p>
-            <a
-              className="App-link"
-              href="https://reactjs.org"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn React
-            </a>
-          </header>
-        </div>
-        ) : (
-        <Redirect to='/login' />
-      )}
-    </SessionContext.Consumer>
-    
+    <div className="App">
+      <header className="App-header">
+        <p>
+          Welcome {authUser.displayName}
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
   )
 }
 
-export default Landing
+export default connect(mapStateToProps)(Landing)

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { compose } from 'recompose';
 
 import { withStyles } from '@material-ui/core/styles';
@@ -7,8 +8,7 @@ import Fab from '@material-ui/core/Fab';
 
 import google from 'google.svg'
 
-import SessionContext from 'components/SessionContext';
-import withFirebase from 'hooks/withFirebase';
+import withFirebase from 'hocs/withFirebase';
 
 const styles = theme => ({
   fab: {
@@ -24,28 +24,28 @@ const styles = theme => ({
   },
 });
 
-function Login({ firebase, classes }) {
-  return (
-    <SessionContext.Consumer>
-      {authUser => authUser ? (
-          <Redirect to='/landing'/>
-        ) : (
-        <Fab 
-            variant="extended" 
-            className={classes.fab}
-            onClick={firebase.onGoogleSignIn} >
-          <img 
-              src={google} 
-              alt='google' 
-              className={classes.icon} />
-          Sign In With Google
-        </Fab>
-      )}
-    </SessionContext.Consumer>
+const mapStateToProps = ({ userState: { authUser } }) => ({ authUser });
+
+function Login({ firebase, authUser, classes }) {
+  if (authUser) {
+    return <Redirect to='/landing' />
+  }
+  return  (
+    <Fab 
+        variant="extended" 
+        className={classes.fab}
+        onClick={firebase.onGoogleSignIn} >
+    <img 
+        src={google} 
+        alt='google' 
+        className={classes.icon} />
+    Sign In With Google
+  </Fab>
   )
 }
 
 export default compose(
   withStyles(styles, { withTheme: true }),
   withFirebase,
+  connect(mapStateToProps),
 )(Login)
